@@ -8,7 +8,7 @@ namespace APITest
 {
     public static class APIHelper
     {
-        public static IRestResponse CreatePOST(string url, string headerName, string headerValue, Dictionary<string, string> body)
+        public static IRestResponse SendJsonApiRequest(string url, string headerName, string headerValue, Dictionary<string, string> body)
         {
             RestClient client = new RestClient(baseUrl: url)
             {
@@ -16,18 +16,24 @@ namespace APITest
             };
             RestRequest request = new RestRequest(Method.POST);
             request.AddHeader(name: headerName, value: headerValue);
-            request.AddJsonBody(body);
+            foreach (var data in body)
+            {
+                request.AddParameter(data.Key, data.Value);
+            }
+            //request.AddJsonBody(body);
             request.RequestFormat = DataFormat.Json;
             IRestResponse response = client.Execute(request);
             return response;
         }
-        public static Cookie ExtractCookie(IRestResponse response, string cookieName)
+        public static List<Cookie> ExtractCookie(IRestResponse response)
         {
+            List<Cookie> allCookies = new List<Cookie>();
             Cookie result = null;
             foreach (var cookie in response.Cookies)
-                if (cookie.Name.Equals(cookieName))
-                    result = new Cookie(cookie.Name, cookie.Value, cookie.Domain, cookie.Path, null);
-            return result;
+                allCookies.Add(new Cookie(cookie.Name, cookie.Value, cookie.Domain, cookie.Path, null));
+               // if (cookie.Name.Equals(cookieName))
+                    //result = new Cookie(cookie.Name, cookie.Value, cookie.Domain, cookie.Path, null);
+            return allCookies;
         }
 
         
