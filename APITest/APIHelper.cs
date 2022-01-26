@@ -8,35 +8,63 @@ namespace APITest
 {
     public static class APIHelper
     {
-        public static IRestResponse SendJsonApiRequest(string url, string headerName, string headerValue, Dictionary<string, string> body)
+        public static IRestResponse SendJsonApiRequest(object body, Dictionary<string, string> headers, string url, Method type)
         {
             RestClient client = new RestClient(baseUrl: url)
             {
                 Timeout = 300000
             };
-            RestRequest request = new RestRequest(Method.POST);
-            request.AddHeader(name: headerName, value: headerValue);
-            foreach (var data in body)
+            RestRequest request = new RestRequest(type);
+            foreach(var header in headers)
             {
-                request.AddParameter(data.Key, data.Value);
+                request.AddHeader(header.Key, header.Value);
             }
-            //request.AddJsonBody(body);
-            request.RequestFormat = DataFormat.Json;
+
+            bool isBodyJson = false;
+            foreach (var header in headers)
+            {
+                if (header.Value.Contains("application/json"))
+                {
+                    isBodyJson = true;
+                    break;
+                }
+            }
+
+            if(!isBodyJson)
+            {
+                foreach(var data in (Dictionary<string, string>) body)
+                {
+                    request.AddParameter(data.Key, data.Value);
+                }
+            }
+            else
+            {
+                request.AddJsonBody(body);
+                request.RequestFormat = DataFormat.Json;
+            }
+
             IRestResponse response = client.Execute(request);
             return response;
         }
-        public static List<Cookie> ExtractCookie(IRestResponse response)
+        public static Cookie ExtractCookie(IRestResponse response, string cookieName)
         {
-            List<Cookie> allCookies = new List<Cookie>();
             Cookie result = null;
             foreach (var cookie in response.Cookies)
-                allCookies.Add(new Cookie(cookie.Name, cookie.Value, cookie.Domain, cookie.Path, null));
-               // if (cookie.Name.Equals(cookieName))
-                    //result = new Cookie(cookie.Name, cookie.Value, cookie.Domain, cookie.Path, null);
-            return allCookies;
+                if (cookie.Name.Equals(cookieName))
+                    result = new Cookie(cookie.Name, cookie.Value, cookie.Domain, cookie.Path, null);
+            return result;
         }
 
-        
+        public static List<Cookie> ExtractAllCookies(IRestResponse response)
+        {
+            List<Cookie> res = new List<Cookie>();
+            foreach (var cookie in response.Cookies)
+                res.Add(new Cookie(cookie.Name, cookie.Value, cookie.Domain, cookie.Path, null));
+
+            return res;
+        }
+
+
 
     }
 }
