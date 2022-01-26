@@ -16,15 +16,18 @@ namespace APITest
             
             Dictionary<string, string> body = new Dictionary<string, string>
             {
-                {"tes5alduin@gmail.com", "theelderscrolls5"}
+                {"Username", "Odaviing"},
+                {"Password", "theelderscrolls5"}
             };
-            IRestResponse response = APIHelper.CreatePOST("https://www.mtggoldfish.com/", "content-type", "application/json", body);
-            var cookie = APIHelper.ExtractCookie(response, "_pbjs_userid_consent_data");
+            IRestResponse response = APIHelper.CreatePOST("https://www.moxfield.com/account/signin", "content-type", "application/json", body);
+            var cookie = APIHelper.ExtractCookie(response, "TiPMix");
 
-            IWebDriver driver = new ChromeDriver();            
+            IWebDriver driver = new ChromeDriver();
+            driver.Navigate().GoToUrl("https://www.moxfield.com");
+           
             driver.Manage().Cookies.AddCookie(cookie);
 
-            driver.Navigate().GoToUrl("https://www.mtggoldfish.com/");
+            
             System.Threading.Thread.Sleep(10000);
             //Assert.Equal("200", response.StatusCode.ToString());
         }
