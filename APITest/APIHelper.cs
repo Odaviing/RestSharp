@@ -67,4 +67,11 @@ namespace APITest
 
 
     }
+
+
+        public class Code
+    {
+        public object RespCode { get; set; }
+    }
+    
 }
