@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using RestSharp;
 using OpenQA.Selenium;
+using System.IO;
 
 namespace APITest
 {
@@ -15,7 +16,7 @@ namespace APITest
                 Timeout = 300000
             };
             RestRequest request = new RestRequest(type);
-            foreach(var header in headers)
+            foreach (var header in headers)
             {
                 request.AddHeader(header.Key, header.Value);
             }
@@ -30,9 +31,9 @@ namespace APITest
                 }
             }
 
-            if(!isBodyJson)
+            if (!isBodyJson)
             {
-                foreach(var data in (Dictionary<string, string>) body)
+                foreach (var data in (Dictionary<string, string>)body)
                 {
                     request.AddParameter(data.Key, data.Value);
                 }
@@ -64,7 +65,12 @@ namespace APITest
             return res;
         }
 
-
-
+        public static byte[] SendJsonApiRequest(string imageUrl)
+        {
+            var client = new RestClient("https://www.nutscomputergraphics.com/wp-content/uploads/2020/02/Seb_cover.jpg");
+            var request2 = new RestRequest(Method.GET);
+            byte[] imageAsBytes = client.DownloadData(request2);
+            return imageAsBytes;
+        }
     }
 }
